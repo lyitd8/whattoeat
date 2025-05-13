@@ -26,7 +26,7 @@
       transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1);
     }
 
-    #wheel .item {
+    #wheel .segment{
       position: absolute;
       width: 50%;
       height: 50%;
@@ -73,41 +73,57 @@
   <button id="spin">Spin the Wheel!</button>
   <div id="result"></div>
 
-  <script>
-    const foods = [
-      "Food Court", "Bagus Dakgalbi", "Mamak", 
-      "tbf 5 free 1 = 6", "Very Thai", "最右边的泰国餐", "大山脚芋头饭+猪肉粉", 
-      "ITOR", "海马", "老顾客", "Banana Leaf"
-    ];
-    const wheel = document.getElementById("wheel");
-    const resultDiv = document.getElementById("result");
+<script>
+  const wheel = document.getElementById("wheel");
+  const resultDiv = document.getElementById("result");
+  let foods = [];
 
-    // Draw segments
+  // Load foods from foods.txt
+  fetch('foods.txt')
+    .then(response => response.text())
+    .then(text => {
+      foods = text.split('\n').map(item => item.trim()).filter(Boolean);
+      buildWheel();
+    })
+    .catch(err => {
+      console.error("Failed to load food list:", err);
+      resultDiv.textContent = "Error loading food list.";
+    });
+
+  function buildWheel() {
     const numItems = foods.length;
+    const anglePerSlice = 360 / numItems;
+
+    // Clear any existing segments
+    wheel.innerHTML = '';
+
     for (let i = 0; i < numItems; i++) {
-      const angle = 360 / numItems * i;
       const segment = document.createElement("div");
-      segment.className = "item";
-      segment.style.transform = `rotate(${angle}deg) skewY(-${90 - 360 / numItems}deg)`;
+      segment.className = "segment";
+      segment.style.transform = `rotate(${i * anglePerSlice}deg) skewY(${90 - anglePerSlice}deg)`;
       segment.style.background = i % 2 === 0 ? "#ffd966" : "#f6b26b";
-      segment.textContent = foods[i];
+      segment.innerHTML = `<div style="transform: skewY(${-(90 - anglePerSlice)}deg) rotate(${anglePerSlice / 2}deg); width: 100%; text-align: right;">${foods[i]}</div>`;
       wheel.appendChild(segment);
     }
+  }
 
-    let angle = 0;
-    document.getElementById("spin").addEventListener("click", () => {
-      const randomIndex = Math.floor(Math.random() * numItems);
-      const rotateTo = 360 * 5 + (360 / numItems) * randomIndex + (360 / numItems) / 2;
+  let angle = 0;
+  document.getElementById("spin").addEventListener("click", () => {
+    if (foods.length === 0) return;
+    const numItems = foods.length;
+    const anglePerSlice = 360 / numItems;
+    const randomIndex = Math.floor(Math.random() * numItems);
+    const extraSpins = 5;
+    const rotation = 360 * extraSpins + (360 - (randomIndex * anglePerSlice) - anglePerSlice / 2);
+    angle += rotation;
+    wheel.style.transform = `rotate(${angle}deg)`;
 
-      angle += rotateTo;
-      wheel.style.transform = `rotate(-${angle}deg)`;
+    setTimeout(() => {
+      resultDiv.textContent = `You should eat: ${foods[randomIndex]}!`;
+    }, 5000);
+  });
+</script>
 
-      // Delay result display until spin ends
-      setTimeout(() => {
-        resultDiv.textContent = `You should eat: ${foods[randomIndex]} today.`;
-      }, 5000);
-    });
-  </script>
 
 </body>
 </html>
