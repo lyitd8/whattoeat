@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WhatToEat - Spin the Wheel</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+    }
+
+    h1 {
+      margin-top: 40px;
+    }
+
+    #wheel {
+      margin: 40px auto;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 10px solid #444;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    #wheel .item {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      background: #ccc;
+      transform-origin: 100% 100%;
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    #spin {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin-top: 20px;
+    }
+
+    #pointer {
+      width: 0; 
+      height: 0; 
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      margin: 0 auto;
+      position: relative;
+      top: -20px;
+    }
+
+    #result {
+      font-size: 24px;
+      margin-top: 30px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>What To Eat?</h1>
+  <div id="pointer"></div>
+  <div id="wheel"></div>
+  <button id="spin">Spin the Wheel!</button>
+  <div id="result"></div>
+
+  <script>
+    const foods = [
+      "Food Court", "Bagus Dakgalbi", "Mamak", 
+      "tbf 5 free 1 = 6", "Very Thai", "最右边的泰国餐", "大山脚芋头饭+猪肉粉", 
+      "ITOR", "海马", "老顾客", "Banana Leaf"
+    ];
+    const wheel = document.getElementById("wheel");
+    const resultDiv = document.getElementById("result");
+
+    // Draw segments
+    const numItems = foods.length;
+    for (let i = 0; i < numItems; i++) {
+      const angle = 360 / numItems * i;
+      const segment = document.createElement("div");
+      segment.className = "item";
+      segment.style.transform = `rotate(${angle}deg) skewY(-${90 - 360 / numItems}deg)`;
+      segment.style.background = i % 2 === 0 ? "#ffd966" : "#f6b26b";
+      segment.textContent = foods[i];
+      wheel.appendChild(segment);
+    }
+
+    let angle = 0;
+    document.getElementById("spin").addEventListener("click", () => {
+      const randomIndex = Math.floor(Math.random() * numItems);
+      const rotateTo = 360 * 5 + (360 / numItems) * randomIndex + (360 / numItems) / 2;
+
+      angle += rotateTo;
+      wheel.style.transform = `rotate(-${angle}deg)`;
+
+      // Delay result display until spin ends
+      setTimeout(() => {
+        resultDiv.textContent = `You should eat: ${foods[randomIndex]}!`;
+      }, 5000);
+    });
+  </script>
+
+</body>
+</html>
