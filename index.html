@@ -119,7 +119,7 @@
     wheel.style.transform = `rotate(${angle}deg)`;
 
     setTimeout(() => {
-      resultDiv.textContent = `You should eat: ${foods[randomIndex]} today.`;
+      resultDiv.innerHTML = `<span style="color: #FF6347; font-size: 24px; font-weight: bold;">You should eat: ${foods[randomIndex]} today.</span>`;
     }, 5000);
   });
 </script>
